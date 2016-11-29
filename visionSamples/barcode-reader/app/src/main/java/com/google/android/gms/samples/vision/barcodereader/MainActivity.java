@@ -71,7 +71,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
             startActivityForResult(intent, RC_BARCODE_CAPTURE);
         }
-
     }
 
     /**
