@@ -24,18 +24,28 @@ import com.google.android.gms.vision.barcode.Barcode;
  * Factory for creating a tracker and associated graphic to be associated with a new barcode.  The
  * multi-processor uses this factory to create barcode trackers as needed -- one for each barcode.
  */
+interface BarcodeRecognizer {
+    void onBarcodeRecognized(Barcode item);
+}
+
 class BarcodeTrackerFactory implements MultiProcessor.Factory<Barcode> {
     private GraphicOverlay<BarcodeGraphic> mGraphicOverlay;
+    private BarcodeRecognizer mBarcodeRecognizer;
 
     BarcodeTrackerFactory(GraphicOverlay<BarcodeGraphic> barcodeGraphicOverlay) {
         mGraphicOverlay = barcodeGraphicOverlay;
     }
 
+    BarcodeTrackerFactory(GraphicOverlay<BarcodeGraphic> barcodeGraphicOverlay, BarcodeRecognizer barcodeRecognizer) {
+        mGraphicOverlay = barcodeGraphicOverlay;
+        mBarcodeRecognizer = barcodeRecognizer;
+    }
+
     @Override
     public Tracker<Barcode> create(Barcode barcode) {
         BarcodeGraphic graphic = new BarcodeGraphic(mGraphicOverlay);
-        return new BarcodeGraphicTracker(mGraphicOverlay, graphic);
-    }
 
+        return new BarcodeGraphicTracker(mGraphicOverlay, graphic, mBarcodeRecognizer);
+    }
 }
 
