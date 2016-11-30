@@ -29,11 +29,21 @@ import com.google.android.gms.vision.barcode.Barcode;
 class BarcodeGraphicTracker extends Tracker<Barcode> {
     private GraphicOverlay<BarcodeGraphic> mOverlay;
     private BarcodeGraphic mGraphic;
+    private BarcodeRecognizer mBarcodeRecognizer;
 
+    BarcodeGraphicTracker(GraphicOverlay<BarcodeGraphic> overlay, BarcodeGraphic graphic, BarcodeRecognizer barcodeRecognizer) {
+        mOverlay = overlay;
+        mGraphic = graphic;
+        mBarcodeRecognizer = barcodeRecognizer;
+    }
+
+    /*
+    // Original code
     BarcodeGraphicTracker(GraphicOverlay<BarcodeGraphic> overlay, BarcodeGraphic graphic) {
         mOverlay = overlay;
         mGraphic = graphic;
     }
+    */
 
     /**
      * Start tracking the detected item instance within the item overlay.
@@ -41,6 +51,9 @@ class BarcodeGraphicTracker extends Tracker<Barcode> {
     @Override
     public void onNewItem(int id, Barcode item) {
         mGraphic.setId(id);
+        if (mBarcodeRecognizer != null) {
+            mBarcodeRecognizer.onBarcodeRecognized(item);
+        }
     }
 
     /**
