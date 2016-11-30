@@ -119,14 +119,13 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
         ITF
         Codabar
          */
-        // 필수적인 코드만 읽도록 수정 (1D + QR Code)
-        BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(context)
-                .setBarcodeFormats(
-                        Barcode.EAN_8 | Barcode.EAN_13 | Barcode.UPC_A | Barcode.UPC_E | Barcode.ITF |
-                        Barcode.CODE_39 | Barcode.CODE_93 | Barcode.CODE_128 | Barcode.CODABAR | Barcode.QR_CODE)
-                .build();
         BarcodeTrackerFactory barcodeFactory = new BarcodeTrackerFactory(null, this);
         barcodeDetector.setProcessor(new MultiProcessor.Builder<>(barcodeFactory).build());
+        // 필수적인 코드만 읽도록 수정 (1D + QR Code) -> 추후 어떻게 변경될 지 모르므로 모두 다 지원하도록 풀기
+        BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(context).build();
+//                .setBarcodeFormats(
+//                        Barcode.EAN_8 | Barcode.EAN_13 | Barcode.UPC_A | Barcode.UPC_E | Barcode.ITF |
+//                        Barcode.CODE_39 | Barcode.CODE_93 | Barcode.CODE_128 | Barcode.CODABAR | Barcode.QR_CODE)
 
         if (!barcodeDetector.isOperational()) {
             // Note: The first time that an app using the barcode or face API is installed on a
