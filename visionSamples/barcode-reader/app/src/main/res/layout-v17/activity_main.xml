@@ -43,7 +43,7 @@
         android:layout_above="@+id/read_barcode"
         android:layout_alignParentStart="true"
         android:layout_marginBottom="77dp"
-        android:checked="false" />
+        android:checked="true" />
 
     <Switch
         android:layout_width="wrap_content"
