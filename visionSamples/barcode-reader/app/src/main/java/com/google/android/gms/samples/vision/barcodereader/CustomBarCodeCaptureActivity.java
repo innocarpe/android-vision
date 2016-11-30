@@ -156,17 +156,17 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
         // at long distances.
         CameraSource.Builder builder = new CameraSource.Builder(getApplicationContext(), barcodeDetector)
                 .setFacing(CameraSource.CAMERA_FACING_BACK)
-//                .setRequestedPreviewSize(1600, 1024)
-                .setRequestedPreviewSize(1600, 1024)
+                .setRequestedPreviewSize(1600, 1024);
+        // 자동 적용되도록 주석
 //                .setRequestedFps(15.0f);
-                .setRequestedFps(30.0f); // 좀 더 부드럽게 보이도록 수정
+//                .setRequestedFps(30.0f); // 좀 더 부드럽게 보이도록 수정
 
         // make sure that auto focus is an available option
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            //noinspection deprecation
-            // TODO: 추후 매크로 모드 관련 조사해보기
 //            builder = builder.setFocusMode(
 //                    autoFocus ? Camera.Parameters.FOCUS_MODE_MACRO : null);
+            // 매크로 모드로는 조금 멀리서 바코드를 측정해야 하는 경우 대응을 못해서 오토 포커싱을 해야만 한다고 생각
+            //noinspection deprecation
             builder = builder.setFocusMode(
                     autoFocus ? Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE : null);
         }
@@ -216,6 +216,7 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
 
         if (mCameraSource != null) {
             try {
+                // 오버레이를 아예 사용하지 않도록 수정
 //                mPreview.start(mCameraSource, mGraphicOverlay);
                 mPreview.start(mCameraSource);
             } catch (IOException e) {
