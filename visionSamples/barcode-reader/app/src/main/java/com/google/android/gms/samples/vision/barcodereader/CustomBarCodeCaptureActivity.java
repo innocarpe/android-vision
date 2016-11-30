@@ -5,19 +5,24 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.samples.vision.barcodereader.customize.BarcodeCropFocusingProcessor;
 import com.google.android.gms.samples.vision.barcodereader.ui.camera.CameraSource;
 import com.google.android.gms.samples.vision.barcodereader.ui.camera.CameraSourcePreview;
-import com.google.android.gms.vision.MultiProcessor;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 
@@ -51,6 +56,10 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
         setContentView(R.layout.activity_custom_bar_code_capture);
 
         mPreview = (CameraSourcePreview) findViewById(R.id.barcode_capture_camera_source_preview);
+        View captureLineView = findViewById(R.id.barcode_capture_line_view);
+
+        startCaptureLineAnimation(captureLineView);
+
         //noinspection unchecked
 //        mGraphicOverlay = (GraphicOverlay<BarcodeGraphic>) findViewById(R.id.barcode_capture_camera_graphic_overlay);
 
@@ -64,30 +73,11 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
 //        if (rc == PackageManager.PERMISSION_GRANTED) {
 
         createCameraSource(autoFocus, false);
+    }
 
-        // TODO: 추후 동적으로 뷰 너비 높이를 구할 필요가 없으면 삭제하기
-        /*
-        mPreview.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                mPreview.getViewTreeObserver().removeOnPreDrawListener(this);
-
-                startCameraSource();
-                return true;
-            }
-        });
-        */
-
-//        } else {
-//            requestCameraPermission();
-//        }
-
-//        gestureDetector = new GestureDetector(this, new BarcodeCaptureActivity.CaptureGestureListener());
-//        scaleGestureDetector = new ScaleGestureDetector(this, new BarcodeCaptureActivity.ScaleListener());
-
-//        Snackbar.make(mGraphicOverlay, "Tap to capture. Pinch/Stretch to zoom",
-//                Snackbar.LENGTH_LONG)
-//                .show();
+    private void startCaptureLineAnimation(View captureLineView) {
+        Animation blinkAnimation = AnimationUtils.loadAnimation(this, R.anim.blink_animation);
+        captureLineView.startAnimation(blinkAnimation);
     }
 
     /**
@@ -107,25 +97,36 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
         // graphics for each barcode on screen.  The factory is used by the multi-processor to
         // create a separate tracker instance for each barcode.
 
-        /*
-        1D - Code
-        EAN-13
-        EAN-8
-        UPC-A
-        UPC-E
-        Code-39
-        Code-93
-        Code-128
-        ITF
-        Codabar
-         */
-        BarcodeTrackerFactory barcodeFactory = new BarcodeTrackerFactory(null, this);
-        barcodeDetector.setProcessor(new MultiProcessor.Builder<>(barcodeFactory).build());
         // 필수적인 코드만 읽도록 수정 (1D + QR Code) -> 추후 어떻게 변경될 지 모르므로 모두 다 지원하도록 풀기
         BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(context).build();
 //                .setBarcodeFormats(
 //                        Barcode.EAN_8 | Barcode.EAN_13 | Barcode.UPC_A | Barcode.UPC_E | Barcode.ITF |
 //                        Barcode.CODE_39 | Barcode.CODE_93 | Barcode.CODE_128 | Barcode.CODABAR | Barcode.QR_CODE)
+
+//        BarcodeTrackerFactory barcodeFactory = new BarcodeTrackerFactory(null, this);
+//        barcodeDetector.setProcessor(new MultiProcessor.Builder<>(barcodeFactory).build());
+
+        // 중앙 Crop 영역 부근만 측정하도록 하는 코드
+        BarcodeGraphicTracker tracker = new BarcodeGraphicTracker(null, null, this);
+        final BarcodeCropFocusingProcessor focusingProcessor = new BarcodeCropFocusingProcessor(barcodeDetector, tracker);
+        barcodeDetector.setProcessor(focusingProcessor);
+
+//        BarcodeTrackerFactory barcodeFactory = new BarcodeTrackerFactory(null, this);
+//        final CentralFocusedDetector centralFocusedDetector = new CentralFocusedDetector(barcodeDetector);
+//        centralFocusedDetector.setProcessor(new MultiProcessor.Builder<>(barcodeFactory).build());
+
+        mPreview.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                mPreview.getViewTreeObserver().removeOnPreDrawListener(this);
+
+                Rect visibleRect = new Rect();
+                mPreview.getLocalVisibleRect(visibleRect);
+
+                focusingProcessor.setPreviewRect(visibleRect, mPreview.getPaddingLeft(), mPreview.getPaddingTop());
+                return true;
+            }
+        });
 
         if (!barcodeDetector.isOperational()) {
             // Note: The first time that an app using the barcode or face API is installed on a
@@ -155,10 +156,13 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
         // at long distances.
         CameraSource.Builder builder = new CameraSource.Builder(getApplicationContext(), barcodeDetector)
                 .setFacing(CameraSource.CAMERA_FACING_BACK)
-                .setRequestedPreviewSize(1600, 1024);
-        // 자동 적용되도록 주석
+//                .setRequestedPreviewSize(300 * 2, 150 * 2)
+                .setRequestedPreviewSize(1600, 1024)
+//                .setRequestedPreviewSize(1600, 800)
 //                .setRequestedFps(15.0f);
-//                .setRequestedFps(30.0f); // 좀 더 부드럽게 보이도록 수정
+                .setRequestedFps(30.0f); // 좀 더 부드럽게 보이도록 수정
+        // https://developers.google.com/vision/multi-tracker-tutorial
+        // 위 링크에 관련 내용 있음 1600/1024, 15fps로 설정할 것
 
         // make sure that auto focus is an available option
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
@@ -175,8 +179,6 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
                 .setFlashMode(useFlash ? Camera.Parameters.FLASH_MODE_TORCH : null)
                 .build();
     }
-
-
 
     /**
      * Restarts the camera.
