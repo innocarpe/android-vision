@@ -50,7 +50,9 @@ class BarcodeGraphicTracker extends Tracker<Barcode> {
      */
     @Override
     public void onNewItem(int id, Barcode item) {
-        mGraphic.setId(id);
+        if (mGraphic != null) {
+            mGraphic.setId(id);
+        }
         if (mBarcodeRecognizer != null) {
             mBarcodeRecognizer.onBarcodeRecognized(item);
         }
@@ -61,8 +63,12 @@ class BarcodeGraphicTracker extends Tracker<Barcode> {
      */
     @Override
     public void onUpdate(Detector.Detections<Barcode> detectionResults, Barcode item) {
-        mOverlay.add(mGraphic);
-        mGraphic.updateItem(item);
+        if (mOverlay != null) {
+            mOverlay.add(mGraphic);
+        }
+        if (mGraphic != null) {
+            mGraphic.updateItem(item);
+        }
     }
 
     /**
@@ -72,7 +78,9 @@ class BarcodeGraphicTracker extends Tracker<Barcode> {
      */
     @Override
     public void onMissing(Detector.Detections<Barcode> detectionResults) {
-        mOverlay.remove(mGraphic);
+        if (mOverlay != null) {
+            mOverlay.remove(mGraphic);
+        }
     }
 
     /**
@@ -81,6 +89,8 @@ class BarcodeGraphicTracker extends Tracker<Barcode> {
      */
     @Override
     public void onDone() {
-        mOverlay.remove(mGraphic);
+        if (mOverlay != null) {
+            mOverlay.remove(mGraphic);
+        }
     }
 }

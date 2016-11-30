@@ -17,7 +17,6 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.samples.vision.barcodereader.ui.camera.CameraSource;
 import com.google.android.gms.samples.vision.barcodereader.ui.camera.CameraSourcePreview;
-import com.google.android.gms.samples.vision.barcodereader.ui.camera.GraphicOverlay;
 import com.google.android.gms.vision.MultiProcessor;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
@@ -41,7 +40,7 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
     private CameraSource mCameraSource;
     // TODO: 나중에 변수명 mCameraSourcePreview로 수정할 것
     private CameraSourcePreview mPreview;
-    private GraphicOverlay<BarcodeGraphic> mGraphicOverlay;
+//    private GraphicOverlay<BarcodeGraphic> mGraphicOverlay;
 
     /**
      * Initializes the UI and creates the detector pipeline.
@@ -53,7 +52,7 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
 
         mPreview = (CameraSourcePreview) findViewById(R.id.barcode_capture_camera_source_preview);
         //noinspection unchecked
-        mGraphicOverlay = (GraphicOverlay<BarcodeGraphic>) findViewById(R.id.barcode_capture_camera_graphic_overlay);
+//        mGraphicOverlay = (GraphicOverlay<BarcodeGraphic>) findViewById(R.id.barcode_capture_camera_graphic_overlay);
 
         // read parameters from the intent used to launch the activity.
         boolean autoFocus = getIntent().getBooleanExtra(AutoFocus, false);
@@ -126,7 +125,7 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
                         Barcode.EAN_8 | Barcode.EAN_13 | Barcode.UPC_A | Barcode.UPC_E | Barcode.ITF |
                         Barcode.CODE_39 | Barcode.CODE_93 | Barcode.CODE_128 | Barcode.CODABAR | Barcode.QR_CODE)
                 .build();
-        BarcodeTrackerFactory barcodeFactory = new BarcodeTrackerFactory(mGraphicOverlay, this);
+        BarcodeTrackerFactory barcodeFactory = new BarcodeTrackerFactory(null, this);
         barcodeDetector.setProcessor(new MultiProcessor.Builder<>(barcodeFactory).build());
 
         if (!barcodeDetector.isOperational()) {
@@ -217,7 +216,8 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
 
         if (mCameraSource != null) {
             try {
-                mPreview.start(mCameraSource, mGraphicOverlay);
+//                mPreview.start(mCameraSource, mGraphicOverlay);
+                mPreview.start(mCameraSource);
             } catch (IOException e) {
                 Log.e(TAG, "Unable to start camera source.", e);
                 mCameraSource.release();

@@ -24,7 +24,6 @@ import com.google.android.gms.vision.CameraSource;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -52,7 +51,7 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
     private int mPreviewHeight;
     private float mHeightScaleFactor = 1.0f;
     private int mFacing = CameraSource.CAMERA_FACING_BACK;
-    private Set<T> mGraphics = new HashSet<>();
+//    private Set<T> mGraphics = new HashSet<>();
 
     /**
      * Base class for a custom graphics object to be rendered within the graphic overlay.  Subclass
@@ -128,9 +127,9 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
      * Removes all graphics from the overlay.
      */
     public void clear() {
-        synchronized (mLock) {
-            mGraphics.clear();
-        }
+//        synchronized (mLock) {
+//            mGraphics.clear();
+//        }
         postInvalidate();
     }
 
@@ -138,9 +137,9 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
      * Adds a graphic to the overlay.
      */
     public void add(T graphic) {
-        synchronized (mLock) {
-            mGraphics.add(graphic);
-        }
+//        synchronized (mLock) {
+//            mGraphics.add(graphic);
+//        }
         postInvalidate();
     }
 
@@ -148,9 +147,9 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
      * Removes a graphic from the overlay.
      */
     public void remove(T graphic) {
-        synchronized (mLock) {
-            mGraphics.remove(graphic);
-        }
+//        synchronized (mLock) {
+//            mGraphics.remove(graphic);
+//        }
         postInvalidate();
     }
 
@@ -160,7 +159,10 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
      */
     public List<T> getGraphics() {
         synchronized (mLock) {
-            return new Vector(mGraphics);
+//            return new Vector(mGraphics);
+
+            //noinspection unchecked
+            return new Vector(new HashSet<>());
         }
     }
 

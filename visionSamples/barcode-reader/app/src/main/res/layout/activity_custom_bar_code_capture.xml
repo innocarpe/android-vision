@@ -17,9 +17,11 @@
         android:layout_marginRight="-13dp"
         android:background="@android:color/holo_red_dark">
 
+        <!--
         <com.google.android.gms.samples.vision.barcodereader.ui.camera.GraphicOverlay
             android:id="@+id/barcode_capture_camera_graphic_overlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+        -->
     </com.google.android.gms.samples.vision.barcodereader.ui.camera.CameraSourcePreview>
 </LinearLayout>
