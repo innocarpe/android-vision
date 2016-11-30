@@ -194,6 +194,7 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
     /**
      * Draws the overlay with its associated graphic objects.
      */
+    /*
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -209,4 +210,5 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
             }
         }
     }
+    */
 }
