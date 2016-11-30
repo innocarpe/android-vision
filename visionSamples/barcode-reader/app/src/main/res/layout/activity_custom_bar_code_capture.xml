@@ -6,7 +6,6 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
     android:keepScreenOn="true">
 
     <com.google.android.gms.samples.vision.barcodereader.ui.camera.CameraSourcePreview
@@ -14,8 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="-13dp"
-        android:layout_marginRight="-13dp"
-        android:background="@android:color/holo_red_dark">
+        android:layout_marginRight="-13dp">
 
         <!--
         <com.google.android.gms.samples.vision.barcodereader.ui.camera.GraphicOverlay
