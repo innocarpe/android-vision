@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.ImageFormat;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
@@ -35,6 +36,7 @@ import android.view.SurfaceView;
 import android.view.WindowManager;
 
 import com.google.android.gms.common.images.Size;
+import com.google.android.gms.samples.vision.barcodereader.customize.AutoFocusManager;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.Frame;
 
@@ -44,6 +46,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -136,7 +139,6 @@ public class CameraSource {
     private int mRequestedPreviewWidth = 1024;
     private int mRequestedPreviewHeight = 768;
 
-
     private String mFocusMode = null;
     private String mFlashMode = null;
 
@@ -159,6 +161,9 @@ public class CameraSource {
      * native code later (avoids a potential copy).
      */
     private Map<byte[], ByteBuffer> mBytesToByteBuffer = new HashMap<>();
+
+    // Customize
+    private AutoFocusManager mAutoFocusManager;
 
     //==============================================================================================
     // Builder
@@ -380,6 +385,9 @@ public class CameraSource {
             mProcessingThread = new Thread(mFrameProcessor);
             mFrameProcessor.setActive(true);
             mProcessingThread.start();
+
+            // customize: Macro Mode + Autofocus
+            mAutoFocusManager = new AutoFocusManager(mCamera);
         }
         return this;
     }
@@ -431,6 +439,12 @@ public class CameraSource {
                 }
                 mCamera.release();
                 mCamera = null;
+
+                // Customize
+                if (mAutoFocusManager != null) {
+                    mAutoFocusManager.stop();
+                    mAutoFocusManager = null;
+                }
             }
         }
     }
@@ -660,6 +674,16 @@ public class CameraSource {
         return true;
     }
 
+    private static final int AREA_PER_1000 = 50;
+//    private static final int AREA_PER_1000 = 100;
+
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
+    private static List<Camera.Area> buildMiddleArea(int areaPer1000) {
+        return Collections.singletonList(
+                new Camera.Area(new Rect(-areaPer1000, -areaPer1000, areaPer1000, areaPer1000), 1));
+//        new Camera.Area(new Rect(-areaPer1000 * 2, -areaPer1000 * 2, -areaPer1000, -areaPer1000), 1));
+    }
+
     //==============================================================================================
     // Private
     //==============================================================================================
@@ -797,6 +821,11 @@ public class CameraSource {
 
         // setting mFlashMode to the one set in the params
         mFlashMode = parameters.getFlashMode();
+
+        // Customize: setting metering for camera to auto-focus based on center area
+        List<Camera.Area> middleArea = buildMiddleArea(AREA_PER_1000);
+        parameters.setMeteringAreas(middleArea);
+        parameters.setFocusAreas(middleArea);
 
         camera.setParameters(parameters);
 

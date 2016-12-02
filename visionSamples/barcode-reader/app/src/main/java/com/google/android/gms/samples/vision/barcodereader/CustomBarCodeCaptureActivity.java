@@ -158,20 +158,22 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
                 .setFacing(CameraSource.CAMERA_FACING_BACK)
 //                .setRequestedPreviewSize(300 * 2, 150 * 2)
                 .setRequestedPreviewSize(1600, 1024)
+//                .setRequestedPreviewSize(800, 512)
+//                .setRequestedPreviewSize(1024, 768)
 //                .setRequestedPreviewSize(1600, 800)
-//                .setRequestedFps(15.0f);
-                .setRequestedFps(30.0f); // 좀 더 부드럽게 보이도록 수정
+                .setRequestedFps(15.0f);
+//                .setRequestedFps(30.0f); // 좀 더 부드럽게 보이도록 수정
         // https://developers.google.com/vision/multi-tracker-tutorial
         // 위 링크에 관련 내용 있음 1600/1024, 15fps로 설정할 것
 
         // make sure that auto focus is an available option
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-//            builder = builder.setFocusMode(
-//                    autoFocus ? Camera.Parameters.FOCUS_MODE_MACRO : null);
+            builder = builder.setFocusMode(
+                    autoFocus ? Camera.Parameters.FOCUS_MODE_MACRO : null);
             // 매크로 모드로는 조금 멀리서 바코드를 측정해야 하는 경우 대응을 못해서 오토 포커싱을 해야만 한다고 생각
             //noinspection deprecation
-            builder = builder.setFocusMode(
-                    autoFocus ? Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE : null);
+//            builder = builder.setFocusMode(
+//                    autoFocus ? Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE : null);
         }
 
         //noinspection deprecation
