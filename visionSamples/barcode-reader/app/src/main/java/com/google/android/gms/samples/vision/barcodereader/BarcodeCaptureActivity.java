@@ -49,6 +49,7 @@ import com.google.android.gms.samples.vision.barcodereader.ui.camera.GraphicOver
 import com.google.android.gms.vision.MultiProcessor;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
+import com.zxd.zxdtestmode.Util;
 
 import java.io.IOException;
 
@@ -222,6 +223,7 @@ public final class BarcodeCaptureActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        setFrontCameraAsTopCamera(true);
         startCameraSource();
     }
 
@@ -234,6 +236,9 @@ public final class BarcodeCaptureActivity extends AppCompatActivity {
         if (mPreview != null) {
             mPreview.stop();
         }
+
+        // 앱에서 나올 때 원래대로 전면 카메라를 사용하기 위함
+        setFrontCameraAsTopCamera(false);
     }
 
     /**
@@ -426,6 +431,22 @@ public final class BarcodeCaptureActivity extends AppCompatActivity {
         @Override
         public void onScaleEnd(ScaleGestureDetector detector) {
             mCameraSource.doZoom(detector.getScaleFactor());
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private void setFrontCameraAsTopCamera(boolean topCameraEnabled) {
+        int cameraId = topCameraEnabled ? 1 : 0;
+
+        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+        int cameraCount = Camera.getNumberOfCameras();
+        for (int i = 0; i < cameraCount; i++) {
+            Camera.getCameraInfo(i, cameraInfo);
+            if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                // 전면 카메라 대신 Top 카메라 사용하도록 하는 로직, 0을 사용하면 원래대로 전면 카메라를 사용
+                Util.camera_switch(cameraId);
+                break;
+            }
         }
     }
 }
