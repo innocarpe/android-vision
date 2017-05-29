@@ -112,25 +112,7 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
         // is set to receive the barcode detection results, track the barcodes, and maintain
         // graphics for each barcode on screen.  The factory is used by the multi-processor to
         // create a separate tracker instance for each barcode.
-
-        /*
-        1D - Code
-        EAN-13
-        EAN-8
-        UPC-A
-        UPC-E
-        Code-39
-        Code-93
-        Code-128
-        ITF
-        Codabar
-         */
-        // 필수적인 코드만 읽도록 수정 (1D + QR Code)
-        BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(context)
-                .setBarcodeFormats(
-                        Barcode.EAN_8 | Barcode.EAN_13 | Barcode.UPC_A | Barcode.UPC_E | Barcode.ITF |
-                        Barcode.CODE_39 | Barcode.CODE_93 | Barcode.CODE_128 | Barcode.CODABAR | Barcode.QR_CODE)
-                .build();
+        BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(context).build();
         BarcodeTrackerFactory barcodeFactory = new BarcodeTrackerFactory(mGraphicOverlay, this);
         barcodeDetector.setProcessor(new MultiProcessor.Builder<>(barcodeFactory).build());
 
