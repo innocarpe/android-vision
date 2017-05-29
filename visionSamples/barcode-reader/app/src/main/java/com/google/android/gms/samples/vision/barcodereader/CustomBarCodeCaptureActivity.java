@@ -40,8 +40,8 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
     private static final int RC_HANDLE_GMS = 9001;
 
     private static final int INITIAL_CAMERA_FACING = CameraSource.CAMERA_FACING_FRONT;
-    private static final int REQUESTED_PREVIEW_WIDTH = 1440;
-    private static final int REQUESTED_PREVIEW_HEIGHT = 1920;
+    private static final int REQUESTED_PREVIEW_WIDTH = 1920;
+    private static final int REQUESTED_PREVIEW_HEIGHT = 1440;
 
     private CameraSource mCameraSource;
     // TODO: 나중에 변수명 mCameraSourcePreview로 수정할 것
