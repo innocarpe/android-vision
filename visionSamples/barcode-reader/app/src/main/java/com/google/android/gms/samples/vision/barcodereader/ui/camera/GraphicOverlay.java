@@ -17,6 +17,7 @@ package com.google.android.gms.samples.vision.barcodereader.ui.camera;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -84,14 +85,14 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
          * Adjusts a horizontal value of the supplied value from the preview scale to the view
          * scale.
          */
-        public float scaleX(float horizontal) {
+        private float scaleX(float horizontal) {
             return horizontal * mOverlay.mWidthScaleFactor;
         }
 
         /**
          * Adjusts a vertical value of the supplied value from the preview scale to the view scale.
          */
-        public float scaleY(float vertical) {
+        private float scaleY(float vertical) {
             return vertical * mOverlay.mHeightScaleFactor;
         }
 
@@ -99,9 +100,9 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
          * Adjusts the x coordinate from the preview's coordinate system to the view coordinate
          * system.
          */
-        public float translateX(float x) {
+        private float translateX(float x) {
             if (mOverlay.mFacing == CameraSource.CAMERA_FACING_FRONT) {
-                return mOverlay.getWidth() - scaleX(x);
+                return mOverlay.getWidth() - scaleX(x); // 대칭 -x + 2a (a = 대칭 선이 되는 x절편 좌표 값, a가 중앙값이니 * 2 해서 getWidth())
             } else {
                 return scaleX(x);
             }
@@ -111,8 +112,28 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
          * Adjusts the y coordinate from the preview's coordinate system to the view coordinate
          * system.
          */
-        public float translateY(float y) {
-            return scaleY(y);
+        private float translateY(float y) {
+                return scaleY(y);
+        }
+
+        protected RectF translate(RectF rect) {
+            if (mOverlay.mFacing == CameraSource.CAMERA_FACING_FRONT) {
+                // 이것이 문제의 핵심. 좌우 대칭을 해야 하는데, 수정된 left를 가지고 right를 구하니 문제가 되는 것
+                float originalLeft = rect.left;
+                float originalRight = rect.right;
+
+                rect.left = translateX(originalLeft);
+                rect.top = translateY(rect.top);
+                rect.right = translateX(originalRight);
+                rect.bottom = translateY(rect.bottom);
+            } else {
+                rect.left = translateX(rect.left);
+                rect.top = translateY(rect.top);
+                rect.right = translateX(rect.right);
+                rect.bottom = translateY(rect.bottom);
+            }
+
+            return rect;
         }
 
         public void postInvalidate() {
