@@ -130,15 +130,20 @@ public class CameraSourcePreview extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        int width = 320;
-        int height = 240;
-        if (mCameraSource != null) {
-            Size size = mCameraSource.getPreviewSize();
-            if (size != null) {
-                width = size.getWidth();
-                height = size.getHeight();
-            }
-        }
+        // 화면에 프리뷰를 가득 채워서 보여주기 위해서 뷰의 width/height를 이용해서 크기를 설정
+        int width = getHeight();
+        int height = getWidth();
+
+//        int width = 320;
+//        int height = 240;
+
+//        if (mCameraSource != null) {
+//            Size size = mCameraSource.getPreviewSize();
+//            if (size != null) {
+//                width = size.getWidth();
+//                height = size.getHeight();
+//            }
+//        }
 
         // Swap width and height sizes when in portrait, since it will be rotated 90 degrees
         if (isPortraitMode()) {
