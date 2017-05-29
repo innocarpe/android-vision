@@ -67,6 +67,10 @@ public final class BarcodeCaptureActivity extends AppCompatActivity {
     // permission request codes need to be < 256
     private static final int RC_HANDLE_CAMERA_PERM = 2;
 
+    private static final int INITIAL_CAMERA_FACING = CameraSource.CAMERA_FACING_FRONT;
+    private static final int REQUESTED_PREVIEW_WIDTH = 2560;
+    private static final int REQUESTED_PREVIEW_HEIGHT = 1920;
+
     // constants used to pass extra data in the intent
     public static final String AutoFocus = "AutoFocus";
     public static final String UseFlash = "UseFlash";
@@ -186,6 +190,7 @@ public final class BarcodeCaptureActivity extends AppCompatActivity {
             // available.  The detectors will automatically become operational once the library
             // downloads complete on device.
             Log.w(TAG, "Detector dependencies are not yet available.");
+            Toast.makeText(context, "Detector dependencies are not yet available.", Toast.LENGTH_SHORT).show();
 
             // Check for low storage.  If there is low storage, the native library will not be
             // downloaded, so detection will not become operational.
@@ -202,9 +207,9 @@ public final class BarcodeCaptureActivity extends AppCompatActivity {
         // to other detection examples to enable the barcode detector to detect small barcodes
         // at long distances.
         CameraSource.Builder builder = new CameraSource.Builder(getApplicationContext(), barcodeDetector)
-                .setFacing(CameraSource.CAMERA_FACING_BACK)
-                .setRequestedPreviewSize(1600, 1024)
-                .setRequestedFps(15.0f);
+                .setFacing(INITIAL_CAMERA_FACING)
+                .setRequestedPreviewSize(REQUESTED_PREVIEW_WIDTH, REQUESTED_PREVIEW_HEIGHT) // 실제 디바이스 width, height를 사용하는 것이 최적의 프리뷰 사이즈 선정에 유리하다 판단
+                .setRequestedFps(30.0f);
 
         // make sure that auto focus is an available option
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
