@@ -39,6 +39,10 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
     // intent request code to handle updating play services if needed.
     private static final int RC_HANDLE_GMS = 9001;
 
+    private static final int INITIAL_CAMERA_FACING = CameraSource.CAMERA_FACING_FRONT;
+    private static final int REQUESTED_PREVIEW_WIDTH = 2560;
+    private static final int REQUESTED_PREVIEW_HEIGHT = 1920;
+
     private CameraSource mCameraSource;
     // TODO: 나중에 변수명 mCameraSourcePreview로 수정할 것
     private CameraSourcePreview mPreview;
@@ -157,11 +161,9 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
         // to other detection examples to enable the barcode detector to detect small barcodes
         // at long distances.
         CameraSource.Builder builder = new CameraSource.Builder(getApplicationContext(), barcodeDetector)
-                .setFacing(CameraSource.CAMERA_FACING_BACK)
-//                .setRequestedPreviewSize(1600, 1024)
-                .setRequestedPreviewSize(1600, 1024)
-//                .setRequestedFps(15.0f);
-                .setRequestedFps(30.0f); // 좀 더 부드럽게 보이도록 수정
+                .setFacing(INITIAL_CAMERA_FACING)
+                .setRequestedPreviewSize(REQUESTED_PREVIEW_WIDTH, REQUESTED_PREVIEW_HEIGHT) // 실제 디바이스 width, height를 사용하는 것이 최적의 프리뷰 사이즈 선정에 유리하다 판단
+                .setRequestedFps(30.0f);
 
         // make sure that auto focus is an available option
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
@@ -187,7 +189,7 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
     @Override
     protected void onResume() {
         super.onResume();
-        setFrontCameraAsTopCamera(false);
+        setFrontCameraAsTopCamera(true);
         startCameraSource();
     }
 
@@ -236,7 +238,10 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
         Intent data = new Intent();
         data.putExtra(BARCODE_VALUE, item.displayValue);
         setResult(CommonStatusCodes.SUCCESS, data);
-        finish();
+
+        Log.i(TAG, "barcode: " + item.displayValue);
+        Log.i(TAG, "boundingBox: " + item.getBoundingBox());
+//        finish();
     }
 
     @SuppressWarnings("deprecation")
