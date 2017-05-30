@@ -16,16 +16,15 @@
 
 package com.google.android.gms.samples.vision.barcodereader;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.app.Activity;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.google.android.gms.common.api.CommonStatusCodes;
-import com.google.android.gms.vision.barcode.Barcode;
 
 /**
  * Main activity demonstrating how to pass extra parameters to an activity that
@@ -65,13 +64,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
     public void onClick(View v) {
         if (v.getId() == R.id.read_barcode) {
             // launch barcode activity.
-            Intent intent = new Intent(this, BarcodeCaptureActivity.class);
+//            Intent intent = new Intent(this, BarcodeCaptureActivity.class);
+//            intent.putExtra(BarcodeCaptureActivity.AutoFocus, autoFocus.isChecked());
+//            intent.putExtra(BarcodeCaptureActivity.UseFlash, useFlash.isChecked());
+
+            Intent intent = new Intent(this, CustomBarcodeCaptureActivity.class);
             intent.putExtra(BarcodeCaptureActivity.AutoFocus, autoFocus.isChecked());
-            intent.putExtra(BarcodeCaptureActivity.UseFlash, useFlash.isChecked());
+//            intent.putExtra(BarcodeCaptureActivity.UseFlash, useFlash.isChecked());
 
             startActivityForResult(intent, RC_BARCODE_CAPTURE);
         }
-
     }
 
     /**
@@ -101,10 +103,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
         if (requestCode == RC_BARCODE_CAPTURE) {
             if (resultCode == CommonStatusCodes.SUCCESS) {
                 if (data != null) {
-                    Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
+//                    Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
+                    String displayValue = data.getStringExtra(CustomBarcodeCaptureActivity.BARCODE_VALUE);
+
                     statusMessage.setText(R.string.barcode_success);
-                    barcodeValue.setText(barcode.displayValue);
-                    Log.d(TAG, "Barcode read: " + barcode.displayValue);
+
+//                    barcodeValue.setText(barcode.displayValue);
+                    barcodeValue.setText(displayValue);
+
+//                    Log.d(TAG, "Barcode read: " + barcode.displayValue);
+                    Log.d(TAG, "Barcode read: " + displayValue);
                 } else {
                     statusMessage.setText(R.string.barcode_failure);
                     Log.d(TAG, "No barcode captured, intent data is null");

@@ -26,6 +26,7 @@ import android.view.SurfaceView;
 import android.view.ViewGroup;
 
 import com.google.android.gms.common.images.Size;
+import com.google.android.gms.samples.vision.barcodereader.CameraSourcePreviewCallback;
 
 import java.io.IOException;
 
@@ -39,6 +40,7 @@ public class CameraSourcePreview extends ViewGroup {
     private CameraSource mCameraSource;
 
     private GraphicOverlay mOverlay;
+    private CameraSourcePreviewCallback mCallback;
 
     public CameraSourcePreview(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -49,6 +51,10 @@ public class CameraSourcePreview extends ViewGroup {
         mSurfaceView = new SurfaceView(context);
         mSurfaceView.getHolder().addCallback(new SurfaceCallback());
         addView(mSurfaceView);
+    }
+
+    public void setCallback(CameraSourcePreviewCallback callback) {
+        mCallback = callback;
     }
 
     @RequiresPermission(Manifest.permission.CAMERA)
@@ -101,6 +107,9 @@ public class CameraSourcePreview extends ViewGroup {
                 }
                 mOverlay.clear();
             }
+            if (mCameraSource != null && mCameraSource.getPreviewSize() != null && mCallback != null) {
+                mCallback.onCameraPreviewSizeDetermined(mCameraSource.getPreviewSize());
+            }
             mStartRequested = false;
         }
     }
@@ -130,15 +139,20 @@ public class CameraSourcePreview extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        int width = 320;
-        int height = 240;
-        if (mCameraSource != null) {
-            Size size = mCameraSource.getPreviewSize();
-            if (size != null) {
-                width = size.getWidth();
-                height = size.getHeight();
-            }
-        }
+        // 화면에 프리뷰를 가득 채워서 보여주기 위해서 뷰의 width/height를 이용해서 크기를 설정
+        int width = getHeight();
+        int height = getWidth();
+
+//        int width = 320;
+//        int height = 240;
+
+//        if (mCameraSource != null) {
+//            Size size = mCameraSource.getPreviewSize();
+//            if (size != null) {
+//                width = size.getWidth();
+//                height = size.getHeight();
+//            }
+//        }
 
         // Swap width and height sizes when in portrait, since it will be rotated 90 degrees
         if (isPortraitMode()) {

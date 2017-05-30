@@ -122,9 +122,9 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
                 float originalLeft = rect.left;
                 float originalRight = rect.right;
 
-                rect.left = translateX(originalLeft);
+                rect.left = translateX(originalRight);
                 rect.top = translateY(rect.top);
-                rect.right = translateX(originalRight);
+                rect.right = translateX(originalLeft);
                 rect.bottom = translateY(rect.bottom);
             } else {
                 rect.left = translateX(rect.left);
