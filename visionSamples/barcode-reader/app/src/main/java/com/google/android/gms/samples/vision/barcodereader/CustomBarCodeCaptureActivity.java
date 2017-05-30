@@ -5,20 +5,22 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.common.images.Size;
 import com.google.android.gms.samples.vision.barcodereader.ui.camera.CameraSource;
 import com.google.android.gms.samples.vision.barcodereader.ui.camera.CameraSourcePreview;
 import com.google.android.gms.samples.vision.barcodereader.ui.camera.GraphicOverlay;
-import com.google.android.gms.vision.MultiProcessor;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.zxd.zxdtestmode.Util;
@@ -44,7 +46,6 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
     private static final int REQUESTED_PREVIEW_HEIGHT = 1440;
 
     private CameraSource mCameraSource;
-    // TODO: 나중에 변수명 mCameraSourcePreview로 수정할 것
     private CameraSourcePreview mPreview;
     private GraphicOverlay<BarcodeGraphic> mGraphicOverlay;
 
@@ -113,8 +114,34 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
         // graphics for each barcode on screen.  The factory is used by the multi-processor to
         // create a separate tracker instance for each barcode.
         BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(context).build();
-        BarcodeTrackerFactory barcodeFactory = new BarcodeTrackerFactory(mGraphicOverlay, this);
-        barcodeDetector.setProcessor(new MultiProcessor.Builder<>(barcodeFactory).build());
+
+        // TODO: 중앙 Crop 영역만 바코드를 인식하게 제한
+        BarcodeTracker tracker = new BarcodeTracker(this, this, false);
+        final BarcodeCropFocusingProcessor focusingProcessor = new BarcodeCropFocusingProcessor(barcodeDetector, tracker);
+        mPreview.setCallback(new CameraSourcePreviewCallback() {
+            @Override
+            public void onCameraPreviewSizeDetermined(Size previewSize) {
+                focusingProcessor.setCameraSourceSize(previewSize);
+            }
+        });
+        barcodeDetector.setProcessor(focusingProcessor);
+
+        mPreview.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                mPreview.getViewTreeObserver().removeOnPreDrawListener(this);
+
+                Rect visibleRect = new Rect();
+                mPreview.getLocalVisibleRect(visibleRect);
+
+                focusingProcessor.setPreviewRect(visibleRect, mPreview.getPaddingLeft(), mPreview.getPaddingTop());
+                return true;
+            }
+        });
+
+        // TODO: 기존 소스
+//        BarcodeTrackerFactory barcodeFactory = new BarcodeTrackerFactory(mGraphicOverlay, this);
+//        barcodeDetector.setProcessor(new MultiProcessor.Builder<>(barcodeFactory).build());
 
         if (!barcodeDetector.isOperational()) {
             // Note: The first time that an app using the barcode or face API is installed on a
@@ -215,17 +242,6 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
         }
     }
 
-    @Override
-    public void onBarcodeRecognized(Barcode item) {
-        Intent data = new Intent();
-        data.putExtra(BARCODE_VALUE, item.displayValue);
-        setResult(CommonStatusCodes.SUCCESS, data);
-
-        Log.i(TAG, "barcode: " + item.displayValue);
-        Log.i(TAG, "boundingBox: " + item.getBoundingBox());
-//        finish();
-    }
-
     @SuppressWarnings("deprecation")
     private void setFrontCameraAsTopCamera(boolean topCameraEnabled) {
         int cameraId = topCameraEnabled ? 1 : 0;
@@ -240,5 +256,24 @@ public class CustomBarcodeCaptureActivity extends AppCompatActivity implements B
                 break;
             }
         }
+    }
+
+    @Override
+    public void onRecognized(final Barcode item) {
+        Intent data = new Intent();
+        data.putExtra(BARCODE_VALUE, item.displayValue);
+        setResult(CommonStatusCodes.SUCCESS, data);
+
+        Log.i(TAG, "barcode: " + item.displayValue);
+        Log.i(TAG, "boundingBox: " + item.getBoundingBox());
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                String description = "barcode: " + item.displayValue + "\nboundingBox: " + item.getBoundingBox();
+                Toast.makeText(CustomBarcodeCaptureActivity.this, description, Toast.LENGTH_SHORT).show();
+            }
+        });
+//        finish();
     }
 }

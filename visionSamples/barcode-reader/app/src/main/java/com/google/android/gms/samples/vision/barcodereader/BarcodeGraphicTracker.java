@@ -52,7 +52,7 @@ class BarcodeGraphicTracker extends Tracker<Barcode> {
     public void onNewItem(int id, Barcode item) {
         mGraphic.setId(id);
         if (mBarcodeRecognizer != null) {
-            mBarcodeRecognizer.onBarcodeRecognized(item);
+            mBarcodeRecognizer.onRecognized(item);
         }
     }
 

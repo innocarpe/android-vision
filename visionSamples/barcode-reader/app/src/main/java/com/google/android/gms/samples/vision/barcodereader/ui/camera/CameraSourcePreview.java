@@ -26,6 +26,7 @@ import android.view.SurfaceView;
 import android.view.ViewGroup;
 
 import com.google.android.gms.common.images.Size;
+import com.google.android.gms.samples.vision.barcodereader.CameraSourcePreviewCallback;
 
 import java.io.IOException;
 
@@ -39,6 +40,7 @@ public class CameraSourcePreview extends ViewGroup {
     private CameraSource mCameraSource;
 
     private GraphicOverlay mOverlay;
+    private CameraSourcePreviewCallback mCallback;
 
     public CameraSourcePreview(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -49,6 +51,10 @@ public class CameraSourcePreview extends ViewGroup {
         mSurfaceView = new SurfaceView(context);
         mSurfaceView.getHolder().addCallback(new SurfaceCallback());
         addView(mSurfaceView);
+    }
+
+    public void setCallback(CameraSourcePreviewCallback callback) {
+        mCallback = callback;
     }
 
     @RequiresPermission(Manifest.permission.CAMERA)
@@ -100,6 +106,9 @@ public class CameraSourcePreview extends ViewGroup {
                     mOverlay.setCameraInfo(max, min, mCameraSource.getCameraFacing());
                 }
                 mOverlay.clear();
+            }
+            if (mCameraSource != null && mCameraSource.getPreviewSize() != null && mCallback != null) {
+                mCallback.onCameraPreviewSizeDetermined(mCameraSource.getPreviewSize());
             }
             mStartRequested = false;
         }
