@@ -67,7 +67,7 @@ public final class BarcodeCaptureActivity extends AppCompatActivity {
     // permission request codes need to be < 256
     private static final int RC_HANDLE_CAMERA_PERM = 2;
 
-    private static final int INITIAL_CAMERA_FACING = CameraSource.CAMERA_FACING_FRONT;
+//    private static final int INITIAL_CAMERA_FACING = CameraSource.CAMERA_FACING_FRONT;
     private static final int REQUESTED_PREVIEW_WIDTH = 2560;
     private static final int REQUESTED_PREVIEW_HEIGHT = 1920;
 
@@ -75,6 +75,7 @@ public final class BarcodeCaptureActivity extends AppCompatActivity {
     public static final String AutoFocus = "AutoFocus";
     public static final String UseFlash = "UseFlash";
     public static final String BarcodeObject = "Barcode";
+    public static final String CameraFacing = "Camera Facing";
 
     private CameraSource mCameraSource;
     private CameraSourcePreview mPreview;
@@ -83,6 +84,7 @@ public final class BarcodeCaptureActivity extends AppCompatActivity {
     // helper objects for detecting taps and pinches.
     private ScaleGestureDetector scaleGestureDetector;
     private GestureDetector gestureDetector;
+    private int cameraFacing;
 
     /**
      * Initializes the UI and creates the detector pipeline.
@@ -98,6 +100,8 @@ public final class BarcodeCaptureActivity extends AppCompatActivity {
         // read parameters from the intent used to launch the activity.
         boolean autoFocus = getIntent().getBooleanExtra(AutoFocus, false);
         boolean useFlash = getIntent().getBooleanExtra(UseFlash, false);
+        // 0 = FRONT, 1 = TOP, 2 = BACK
+        cameraFacing = getIntent().getIntExtra(CameraFacing, 0);
 
         // Check for the camera permission before accessing the camera.  If the
         // permission is not granted yet, request permission.
@@ -207,7 +211,7 @@ public final class BarcodeCaptureActivity extends AppCompatActivity {
         // to other detection examples to enable the barcode detector to detect small barcodes
         // at long distances.
         CameraSource.Builder builder = new CameraSource.Builder(getApplicationContext(), barcodeDetector)
-                .setFacing(INITIAL_CAMERA_FACING)
+                .setFacing(cameraFacing == 2 ? CameraSource.CAMERA_FACING_BACK : CameraSource.CAMERA_FACING_FRONT)
                 .setRequestedPreviewSize(REQUESTED_PREVIEW_WIDTH, REQUESTED_PREVIEW_HEIGHT) // 실제 디바이스 width, height를 사용하는 것이 최적의 프리뷰 사이즈 선정에 유리하다 판단
                 .setRequestedFps(30.0f);
 
@@ -228,7 +232,11 @@ public final class BarcodeCaptureActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        setFrontCameraAsTopCamera(true);
+        if (cameraFacing == 1) { // TOP
+            setFrontCameraAsTopCamera(true);
+        } else {
+            setFrontCameraAsTopCamera(false);
+        }
         startCameraSource();
     }
 

@@ -22,9 +22,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.vision.barcode.Barcode;
 
 /**
  * Main activity demonstrating how to pass extra parameters to an activity that
@@ -37,6 +39,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private CompoundButton useFlash;
     private TextView statusMessage;
     private TextView barcodeValue;
+    private SeekBar cameraFacingSeekBar;
 
     private static final int RC_BARCODE_CAPTURE = 9001;
     private static final String TAG = "BarcodeMain";
@@ -52,6 +55,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
         autoFocus = (CompoundButton) findViewById(R.id.auto_focus);
         useFlash = (CompoundButton) findViewById(R.id.use_flash);
 
+        cameraFacingSeekBar = (SeekBar) findViewById(R.id.seekBar);
+
         findViewById(R.id.read_barcode).setOnClickListener(this);
     }
 
@@ -64,12 +69,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
     public void onClick(View v) {
         if (v.getId() == R.id.read_barcode) {
             // launch barcode activity.
-//            Intent intent = new Intent(this, BarcodeCaptureActivity.class);
-//            intent.putExtra(BarcodeCaptureActivity.AutoFocus, autoFocus.isChecked());
-//            intent.putExtra(BarcodeCaptureActivity.UseFlash, useFlash.isChecked());
-
-            Intent intent = new Intent(this, CustomBarcodeCaptureActivity.class);
+            Intent intent = new Intent(this, BarcodeCaptureActivity.class);
             intent.putExtra(BarcodeCaptureActivity.AutoFocus, autoFocus.isChecked());
+            intent.putExtra(BarcodeCaptureActivity.UseFlash, useFlash.isChecked());
+            intent.putExtra(BarcodeCaptureActivity.CameraFacing, cameraFacingSeekBar.getProgress());
+
+//            Intent intent = new Intent(this, CustomBarcodeCaptureActivity.class);
+//            intent.putExtra(BarcodeCaptureActivity.AutoFocus, autoFocus.isChecked());
 //            intent.putExtra(BarcodeCaptureActivity.UseFlash, useFlash.isChecked());
 
             startActivityForResult(intent, RC_BARCODE_CAPTURE);
@@ -103,8 +109,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
         if (requestCode == RC_BARCODE_CAPTURE) {
             if (resultCode == CommonStatusCodes.SUCCESS) {
                 if (data != null) {
-//                    Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
-                    String displayValue = data.getStringExtra(CustomBarcodeCaptureActivity.BARCODE_VALUE);
+                    Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
+                    String displayValue = barcode.displayValue;
+//                    String displayValue = data.getStringExtra(CustomBarcodeCaptureActivity.BARCODE_VALUE);
 
                     statusMessage.setText(R.string.barcode_success);
 
